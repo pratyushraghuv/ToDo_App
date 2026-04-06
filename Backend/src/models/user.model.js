@@ -6,9 +6,15 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    email:{
+        type: String,
+        required: true,
+        unique: true
+    },
     password: {
         type: String,
-        required: true
+        required: [true, 'Password is required'],
+        select: false
     },
     todos: [
         {
@@ -16,6 +22,10 @@ const userSchema = new mongoose.Schema({
             ref: 'Todos'
         }
     ]
-}, { timestamps: true });
+}, { timestamps: true })
 
-module.exports = mongoose.model('User', userSchema);
+userSchema.pre('save', async function(){
+    this.password = await bcrypt.hash(this.password, 10);
+})
+
+module.exports = mongoose.model('User', userSchema)
